@@ -33,8 +33,24 @@
     <button id="history-toggle-btn" onclick="toggleHistory()">📋 한 달 기록 보기</button>
 
     <div id="history-panel">
-      <h3>🗓 이번 달 점심 기록</h3>
-      <div id="history-list"></div>
+      <div class="view-tabs">
+        <button class="view-tab active" onclick="switchView('list')">목록</button>
+        <button class="view-tab" onclick="switchView('calendar')">달력</button>
+      </div>
+
+      <div id="view-list">
+        <div id="history-list"></div>
+      </div>
+
+      <div id="view-calendar" style="display:none">
+        <div class="cal-nav">
+          <button onclick="changeMonth(-1)">&#8249;</button>
+          <span id="cal-title"></span>
+          <button onclick="changeMonth(1)">&#8250;</button>
+        </div>
+        <div id="calendar-grid"></div>
+        <div id="cal-detail"></div>
+      </div>
     </div>
   </div>
 

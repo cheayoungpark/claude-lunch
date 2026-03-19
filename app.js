@@ -267,6 +267,128 @@ function toggleHistory() {
   btn.textContent = isOpen ? "📋 기록 닫기" : "📋 한 달 기록 보기";
 }
 
+// ── 뷰 전환 ────────────────────────────────────────────
+
+let currentView = "list";
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById("view-list").style.display = view === "list" ? "block" : "none";
+  document.getElementById("view-calendar").style.display = view === "calendar" ? "block" : "none";
+  document.querySelectorAll(".view-tab").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".view-tab")[view === "list" ? 0 : 1].classList.add("active");
+  if (view === "calendar") renderCalendar();
+}
+
+// ── 달력 ───────────────────────────────────────────────
+
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-indexed
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const records = getRecords();
+  const recordMap = {};
+  records.forEach(r => { recordMap[r.date] = r; });
+
+  const title = document.getElementById("cal-title");
+  title.textContent = `${calYear}년 ${calMonth + 1}월`;
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=일
+  const lastDate = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  let html = `<div class="cal-header">${dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join("")}</div><div class="cal-body">`;
+
+  // 빈 칸
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let d = 1; d <= lastDate; d++) {
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const record = recordMap[dateStr];
+    const isToday = dateStr === today;
+    html += `
+      <div class="cal-cell ${record ? "has-record" : ""} ${isToday ? "today" : ""}" onclick="showCalDetail('${dateStr}')">
+        <span class="cal-date">${d}</span>
+        ${record ? `<span class="cal-emoji">${record.emoji}</span><span class="cal-menu-name">${record.name}</span>` : ""}
+      </div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById("calendar-grid").innerHTML = html;
+  document.getElementById("cal-detail").innerHTML = "";
+}
+
+function showCalDetail(dateStr) {
+  const records = getRecords();
+  const record = records.find(r => r.date === dateStr);
+  const detail = document.getElementById("cal-detail");
+
+  if (!record) {
+    detail.innerHTML = `
+      <div class="cal-detail-box empty-day">
+        <span class="cal-detail-date">${formatDate(dateStr)}</span>
+        <span class="cal-detail-empty">기록 없음</span>
+      </div>`;
+    return;
+  }
+
+  detail.innerHTML = `
+    <div class="cal-detail-box">
+      <span class="cal-detail-date">${formatDate(dateStr)}</span>
+      <span class="cal-detail-emoji">${record.emoji}</span>
+      <div class="cal-detail-info">
+        <span class="cal-detail-name">${record.name}</span>
+        <span class="cal-detail-cat">${record.category}</span>
+      </div>
+      <button class="history-edit" onclick="calEditRecord('${dateStr}')" title="수정">✏️</button>
+      <button class="history-del" onclick="calDeleteRecord('${dateStr}')" title="삭제">✕</button>
+    </div>`;
+}
+
+function calDeleteRecord(date) {
+  deleteRecord(date);
+  renderCalendar();
+}
+
+function calEditRecord(date) {
+  const optionsHtml = menus.map(m =>
+    `<option value="${m.name}">${m.emoji} ${m.name} (${m.category})</option>`
+  ).join("");
+  const detail = document.getElementById("cal-detail");
+  const current = getRecords().find(r => r.date === date);
+
+  detail.innerHTML = `
+    <div class="edit-row">
+      <select class="edit-select" id="cal-edit-select">${optionsHtml}</select>
+      <button class="edit-confirm-btn" onclick="calConfirmEdit('${date}')">변경</button>
+      <button class="edit-cancel-btn" onclick="showCalDetail('${date}')">취소</button>
+    </div>`;
+  if (current) document.getElementById("cal-edit-select").value = current.name;
+}
+
+function calConfirmEdit(date) {
+  const selectedName = document.getElementById("cal-edit-select").value;
+  const menu = menus.find(m => m.name === selectedName);
+  if (!menu) return;
+  const records = getRecords();
+  const idx = records.findIndex(r => r.date === date);
+  if (idx !== -1) {
+    records[idx] = { date, name: menu.name, emoji: menu.emoji, category: menu.category };
+    saveRecords(records);
+  }
+  renderHistory();
+  renderCalendar();
+  showCalDetail(date);
+}
+
 // Init
 renderCategories();
 initExcludeSelect();
