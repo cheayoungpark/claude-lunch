@@ -260,13 +260,6 @@ function renderHistory() {
   `).join("");
 }
 
-function toggleHistory() {
-  const panel = document.getElementById("history-panel");
-  const btn = document.getElementById("history-toggle-btn");
-  const isOpen = panel.classList.toggle("open");
-  btn.textContent = isOpen ? "📋 기록 닫기" : "📋 한 달 기록 보기";
-}
-
 // ── 뷰 전환 ────────────────────────────────────────────
 
 let currentView = "list";

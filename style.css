@@ -11,8 +11,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px 60px;
+  padding: 40px 24px 60px;
 }
+
+/* 가로 레이아웃 */
+.layout {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 980px;
+  align-items: flex-start;
+}
+
+.col-left  { flex: 0 0 420px; }
+.col-right { flex: 1; min-width: 0; }
 
 header {
   text-align: center;
@@ -37,9 +49,8 @@ header p {
   background: #fff;
   border-radius: 24px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.14);
-  padding: 36px 32px;
+  padding: 32px 28px;
   width: 100%;
-  max-width: 480px;
 }
 
 /* Category tabs */
@@ -274,41 +285,18 @@ header p {
   background: #f1f8f1;
 }
 
-/* History toggle button */
-#history-toggle-btn {
-  width: 100%;
-  margin-top: 16px;
-  padding: 12px;
-  background: #f5f5f5;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #555;
-  cursor: pointer;
-  transition: all 0.18s;
+/* History header */
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-#history-toggle-btn:hover {
-  background: #eeeeee;
-}
-
-/* History panel */
-#history-panel {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-}
-
-#history-panel.open {
-  max-height: 600px;
-}
-
-#history-panel h3 {
-  font-size: 0.95rem;
+.history-header h2 {
+  font-size: 1rem;
   font-weight: 700;
   color: #444;
-  margin: 16px 0 10px;
 }
 
 .history-empty {
@@ -392,8 +380,6 @@ header p {
 .view-tabs {
   display: flex;
   gap: 6px;
-  margin-bottom: 14px;
-  margin-top: 4px;
 }
 
 .view-tab {
@@ -651,6 +637,11 @@ footer {
   margin-top: 32px;
   font-size: 0.85rem;
   color: rgba(255,255,255,0.65);
+}
+
+@media (max-width: 780px) {
+  .layout { flex-direction: column; }
+  .col-left { flex: none; }
 }
 
 @media (max-width: 480px) {
